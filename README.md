@@ -2,6 +2,10 @@
 
 Offline-first TPM plugin that shows Islamic prayer status in tmux status bar.
 
+## Screenshots
+
+<img width="586" height="28" alt="Screenshot 2026-03-01 at 12 15 29 AM" src="https://github.com/user-attachments/assets/bb10bfee-82e6-47b6-bde6-44f1fd96d5af" />
+
 ## Requirements
 
 - `tmux`
@@ -96,9 +100,6 @@ bash -n scripts/helpers.sh scripts/prayer_times.sh
 lua scripts/prayer_calc.lua 32.8140 -96.9489 auto ISNA standard 12H status America/Chicago
 ```
 
-## Screenshots
-
-_Placeholder: add tmux status-bar screenshot once the plugin is loaded in a real tmux session._
 
 ## License
 
