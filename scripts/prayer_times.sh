@@ -15,6 +15,7 @@ SCHOOL="$(get_tmux_option "@prayer-times-school" "standard")"
 TIME_FORMAT="$(get_tmux_option "@prayer-times-format" "12H")"
 INTERVAL_MINUTES="$(get_tmux_option "@prayer-times-interval" "1")"
 ICON_TEXT="$(get_tmux_option "@prayer-times-icon" "🕌 ")"
+PRAYER_COLOR="$(get_tmux_option "@prayer-times-color" "#89b4fa")"
 
 detect_lua_bin() {
   local candidate
@@ -43,6 +44,11 @@ if [ "$MODE" = "icon" ]; then
   exit 0
 fi
 
+if [ "$MODE" = "color" ]; then
+  echo "$PRAYER_COLOR"
+  exit 0
+fi
+
 run_lua_mode() {
   local lua_mode="$1"
   local script_path="$CURRENT_DIR/scripts/prayer_calc.lua"
@@ -63,7 +69,7 @@ run_lua_mode() {
 
 emit_fallback() {
   local status="Prayer: unavailable"
-  local color="#ff2c2c"
+  local color="$PRAYER_COLOR"
   local now
   now="$(date +%s)"
   set_tmux_option "$CACHE_VALUE_OPTION" "$status"
@@ -105,11 +111,16 @@ CURRENT_TIME="$(date +%s)"
 LAST_UPDATE_TIME="$(get_tmux_option "$CACHE_TIME_OPTION" "0")"
 NEXT_REFRESH_TIME="$(get_tmux_option "$CACHE_NEXT_REFRESH_OPTION" "0")"
 CACHED_STATUS="$(get_tmux_option "$CACHE_VALUE_OPTION" "")"
-CACHED_COLOR="$(get_tmux_option "$CACHE_COLOR_OPTION" "#008000")"
+CACHED_COLOR="$(get_tmux_option "$CACHE_COLOR_OPTION" "$PRAYER_COLOR")"
 INTERVAL_SECONDS="$((INTERVAL_MINUTES * 60))"
+CLOCK_ROLLED_BACK="false"
+
+if [[ "$LAST_UPDATE_TIME" =~ ^[0-9]+$ ]] && [ "$CURRENT_TIME" -lt "$LAST_UPDATE_TIME" ]; then
+  CLOCK_ROLLED_BACK="true"
+fi
 
 USE_CACHE="false"
-if [ -n "$CACHED_STATUS" ]; then
+if [ -n "$CACHED_STATUS" ] && [ "$CLOCK_ROLLED_BACK" = "false" ]; then
   if [[ "$NEXT_REFRESH_TIME" =~ ^[0-9]+$ ]] && [ "$NEXT_REFRESH_TIME" -gt "$CURRENT_TIME" ]; then
     USE_CACHE="true"
   elif [[ "$LAST_UPDATE_TIME" =~ ^[0-9]+$ ]] && [ "$((CURRENT_TIME - LAST_UPDATE_TIME))" -lt "$INTERVAL_SECONDS" ]; then
@@ -118,11 +129,7 @@ if [ -n "$CACHED_STATUS" ]; then
 fi
 
 if [ "$USE_CACHE" = "true" ]; then
-  if [ "$MODE" = "color" ]; then
-    echo "$CACHED_COLOR"
-  else
-    echo "$CACHED_STATUS"
-  fi
+  echo "$CACHED_STATUS"
   exit 0
 fi
 
@@ -155,9 +162,7 @@ fi
 if [ -z "$STATUS_TEXT" ]; then
   STATUS_TEXT="Prayer: calculation failure"
 fi
-if [ -z "$COLOR_TEXT" ]; then
-  COLOR_TEXT="#ff2c2c"
-fi
+COLOR_TEXT="$PRAYER_COLOR"
 if ! [[ "$NEXT_REFRESH_TIME" =~ ^[0-9]+$ ]]; then
   NEXT_REFRESH_TIME="$((CURRENT_TIME + INTERVAL_SECONDS))"
 fi

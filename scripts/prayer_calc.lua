@@ -18,7 +18,7 @@ local Calculator = {
     standard = 1,
     hanafi = 2,
   },
-  labels = { "fajr", "sunrise", "dhuhr", "asr", "sunset", "maghrib", "isha", "midnight" },
+  labels = { "fajr", "dhuhr", "asr", "maghrib", "isha" },
   roundings = {
     up = "ceil",
     down = "floor",
@@ -360,9 +360,6 @@ function Calculator.get_current_waqt(now_ms)
     local waqt_start = waqt_times[waqt_order[i]]
     local next_waqt_start = waqt_times[waqt_order[j]]
 
-    if i == 1 then
-      next_waqt_start = waqt_times.sunrise
-    end
     if i == #waqt_order then
       next_waqt_start = next_waqt_start + DAY
     end
@@ -416,18 +413,7 @@ function Calculator.get_next_refresh_epoch(waqt_info)
 end
 
 function Calculator.get_warning_color(waqt_info)
-  if not waqt_info.time_left then
-    return "#008000"
-  end
-
-  local cur_end_h = math.floor(waqt_info.time_left / HOUR)
-  local cur_end_m = math.floor((waqt_info.time_left % HOUR) / MINUTE)
-  if cur_end_h >= 1 then
-    return "#008000"
-  elseif cur_end_m < 30 then
-    return "#ff2c2c"
-  end
-  return "#ffa500"
+  return "#008000"
 end
 
 local function formatted_times_for(date)

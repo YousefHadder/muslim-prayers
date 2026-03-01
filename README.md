@@ -13,8 +13,9 @@ Offline-first TPM plugin that shows Islamic prayer status in tmux status bar.
 - Configurable location/method/school/time format via tmux options
 - DST-safe mode with timezone-aware auto UTC offset
 - Next-prayer-focused status text (for example: `Fajr at: 05:49 AM`)
+- Displayed schedule is limited to the five daily prayers (no sunrise/sunset in output)
 - Cached output via tmux options for low overhead, auto-refreshing one minute after next prayer starts
-- Status + urgency color + icon placeholders
+- Status + static color + icon placeholders
 
 ## Installation (TPM)
 
@@ -29,7 +30,7 @@ Then reload tmux and install with TPM.
 ## Placeholders
 
 - `#{prayer_times}`: prayer status text
-- `#{prayer_times_color}`: urgency color (`#008000`, `#ffa500`, `#ff2c2c`)
+- `#{prayer_times_color}`: configured static color (default `#89b4fa`)
 - `#{prayer_times_icon}`: icon text (default `🕌 `)
 
 Example:
@@ -57,6 +58,7 @@ All settings are tmux options (`set -g @prayer-times-*`):
 | `@prayer-times-format` | `12H` | `12H`, `12h`, or `24h` |
 | `@prayer-times-interval` | `1` | Refresh interval in minutes |
 | `@prayer-times-icon` | `🕌 ` | Icon placeholder value |
+| `@prayer-times-color` | `#89b4fa` | Static color used by `#{prayer_times_color}` |
 
 Example config:
 
@@ -69,6 +71,7 @@ set -g @prayer-times-method 'ISNA'
 set -g @prayer-times-school 'standard'
 set -g @prayer-times-format '12H'
 set -g @prayer-times-interval '1'
+set -g @prayer-times-color '#89b4fa'
 ```
 
 ## Catppuccin module sample
