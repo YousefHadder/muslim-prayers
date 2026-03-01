@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  smoke:
+    name: Smoke (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure Lua interpreter
+        shell: bash
+        run: |
+          set -euo pipefail
+          if command -v lua >/dev/null 2>&1 || command -v lua5.4 >/dev/null 2>&1 || command -v lua5.3 >/dev/null 2>&1 || command -v lua5.2 >/dev/null 2>&1 || command -v luajit >/dev/null 2>&1; then
+            exit 0
+          fi
+
+          if [ "${RUNNER_OS}" = "Linux" ]; then
+            sudo apt-get update
+            sudo apt-get install -y lua5.4
+          else
+            brew install lua
+          fi
+
+      - name: Shell syntax checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n muslim-prayers.tmux scripts/helpers.sh scripts/prayer_times.sh
+
+      - name: Prayer script smoke checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x muslim-prayers.tmux scripts/helpers.sh scripts/prayer_times.sh scripts/prayer_calc.lua
+          status="$(TZ=America/Chicago ./scripts/prayer_times.sh status)"
+          color="$(TZ=America/Chicago ./scripts/prayer_times.sh color)"
+          json="$(TZ=America/Chicago ./scripts/prayer_times.sh json)"
+
+          echo "$status"
+          echo "$color"
+          echo "$json" | head -c 200
+          echo
+
+          [ -n "$status" ]
+          [ -n "$color" ]
+          echo "$status" | grep -Eq '.+ at: .+'
+          echo "$color" | grep -Eq '^#[0-9a-fA-F]{6}$'
+          echo "$json" | grep -q '"next_refresh_epoch"'
