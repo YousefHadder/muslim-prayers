@@ -7,6 +7,9 @@ source "$CURRENT_DIR/scripts/helpers.sh"
 main() {
   local prayer_script="$CURRENT_DIR/scripts/prayer_times.sh"
 
+  # Export plugin path so #() shell commands in catppuccin conf can find scripts
+  tmux set-environment -g MUSLIM_PRAYERS_DIR "$CURRENT_DIR"
+
   for side in status-left status-right; do
     replace_placeholder_in_status_line "prayer_times" "$prayer_script status" "$side"
     replace_placeholder_in_status_line "prayer_times_color" "$prayer_script color" "$side"
