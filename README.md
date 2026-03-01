@@ -26,7 +26,7 @@ Offline-first TPM plugin that shows Islamic prayer status in tmux status bar.
 Add to your `.tmux.conf`:
 
 ```tmux
-set -g @plugin 'yousefhadder/muslim-prayers'
+set -g @plugin 'YousefHadder/muslim-prayers'
 ```
 
 Then reload tmux and install with TPM.
@@ -37,10 +37,26 @@ Then reload tmux and install with TPM.
 - `#{prayer_times_color}`: configured static color (default `#89b4fa`)
 - `#{prayer_times_icon}`: icon text (default `🕌 `)
 
-Example:
+Current `.tmux.conf` usage (matching the setup in this repository):
 
 ```tmux
-set -g status-right '#[fg=#{prayer_times_color}]#[fg=#11111b,bg=#{prayer_times_color}]#{prayer_times_icon}▐#[fg=#cdd6f4,bg=#181825]#{prayer_times}#[default] | %H:%M'
+set-option -g @plugin 'YousefHadder/muslim-prayers'
+
+set-option -g @prayer-times-latitude '32.8140'
+set-option -g @prayer-times-longitude '-96.9489'
+set-option -g @prayer-times-timezone 'America/Chicago'
+set-option -g @prayer-times-utc-offset 'auto'
+set-option -g @prayer-times-method 'ISNA'
+set-option -g @prayer-times-school 'standard'
+set-option -g @prayer-times-format '12H'
+set-option -g @prayer-times-interval '1'
+set-option -g @prayer-times-icon '🕌'
+
+source -F '#{HOME}/scripts/custom_modules/ctp_prayer_times.conf'
+
+run '#{TMUX_PLUGIN_MANAGER_PATH}/tpm/tpm'
+set-option -agF status-right ' #{E:@catppuccin_status_ctp_prayer_times}'
+run-shell '#{TMUX_PLUGIN_MANAGER_PATH}/muslim-prayers/muslim-prayers.tmux'
 ```
 
 ## Theme compatibility
@@ -75,7 +91,7 @@ set -g @prayer-times-method 'ISNA'
 set -g @prayer-times-school 'standard'
 set -g @prayer-times-format '12H'
 set -g @prayer-times-interval '1'
-set -g @prayer-times-color '#89b4fa'
+set -g @prayer-times-icon '🕌'
 ```
 
 ## Catppuccin module sample
