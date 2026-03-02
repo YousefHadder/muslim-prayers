@@ -18,6 +18,13 @@ main() {
   replace_placeholder_in_all_options "prayer_times" "$prayer_script status"
   replace_placeholder_in_all_options "prayer_times_color" "$prayer_script color"
   replace_placeholder_in_all_options "prayer_times_icon" "$prayer_script icon"
+
+  # Pre-warm prayer cache so the first #(cmd) evaluation returns data quickly
+  "$prayer_script" status >/dev/null 2>&1 || true
+
+  # tmux evaluates #(cmd) asynchronously on first encounter (returns empty).
+  # Schedule a delayed refresh so cached results render without manual action.
+  (sleep 1 && tmux refresh-client -S 2>/dev/null) &
 }
 
 main "$@"
