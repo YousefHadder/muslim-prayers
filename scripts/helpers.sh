@@ -31,3 +31,24 @@ replace_placeholder_in_status_line() {
   option_value="${option_value//\#\{$placeholder\}/#($command)}"
   tmux set-option -gq "$option_name" "$option_value" >/dev/null 2>&1 || true
 }
+
+get_tmux_version() {
+  local version_string
+  local major
+  local minor
+  version_string="$(tmux -V 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' || true)"
+  if [ -z "$version_string" ]; then
+    echo "0"
+    return
+  fi
+
+  major="${version_string%%.*}"
+  minor="${version_string##*.}"
+  echo "$((major * 100 + minor))"
+}
+
+supports_popup() {
+  local version
+  version="$(get_tmux_version)"
+  [ "$version" -ge 302 ]
+}

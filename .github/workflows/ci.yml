@@ -36,13 +36,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          bash -n muslim-prayers.tmux scripts/helpers.sh scripts/prayer_times.sh
+          bash -n muslim-prayers.tmux scripts/helpers.sh scripts/prayer_times.sh scripts/popup_times.sh
 
       - name: Prayer script smoke checks
         shell: bash
         run: |
           set -euo pipefail
-          chmod +x muslim-prayers.tmux scripts/helpers.sh scripts/prayer_times.sh scripts/prayer_calc.lua
+          chmod +x muslim-prayers.tmux scripts/helpers.sh scripts/prayer_times.sh scripts/popup_times.sh scripts/prayer_calc.lua
           status="$(TZ=America/Chicago ./scripts/prayer_times.sh status)"
           color="$(TZ=America/Chicago ./scripts/prayer_times.sh color)"
           json="$(TZ=America/Chicago ./scripts/prayer_times.sh json)"

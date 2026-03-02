@@ -20,6 +20,7 @@ Offline-first TPM plugin that shows Islamic prayer status in tmux status bar.
 - Displayed schedule is limited to the five daily prayers (no sunrise/sunset in output)
 - Cached output via tmux options for low overhead, auto-refreshing one minute after next prayer starts
 - Status + static color + icon placeholders
+- Popup with all five prayer times for today (`prefix + m` by default)
 
 ## Installation (TPM)
 
@@ -36,6 +37,11 @@ Then reload tmux and install with TPM.
 - `#{prayer_times}`: prayer status text
 - `#{prayer_times_color}`: configured static color (default `#89b4fa`)
 - `#{prayer_times_icon}`: icon text (default `🕌 `)
+
+## Key binding
+
+- `prefix + m`: open a popup with today's five prayer times
+- Configure key via `@prayer-times-popup-key`
 
 Current `.tmux.conf` usage (matching the setup in this repository):
 
@@ -67,18 +73,19 @@ This plugin is theme-agnostic. You can use it with any tmux theme by placing `#{
 
 All settings are tmux options (`set -g @prayer-times-*`):
 
-| Option | Default | Description |
-| --- | --- | --- |
-| `@prayer-times-latitude` | `32.8140` | Latitude |
-| `@prayer-times-longitude` | `-96.9489` | Longitude |
-| `@prayer-times-timezone` | `America/Chicago` | IANA timezone for local wall-clock + DST |
-| `@prayer-times-utc-offset` | `auto` | UTC offset in hours (`auto` uses timezone) |
-| `@prayer-times-method` | `ISNA` | Method: ISNA, MWL, Egypt, Makkah, Karachi, Tehran, Jafari, France, Russia, Singapore |
-| `@prayer-times-school` | `standard` | `standard` or `hanafi` |
-| `@prayer-times-format` | `12H` | `12H`, `12h`, or `24h` |
-| `@prayer-times-interval` | `1` | Refresh interval in minutes |
-| `@prayer-times-icon` | `🕌 ` | Icon placeholder value |
-| `@prayer-times-color` | `#89b4fa` | Static color used by `#{prayer_times_color}` |
+| Option                     | Default           | Description                                                                          |
+| -------------------------- | ----------------- | ------------------------------------------------------------------------------------ |
+| `@prayer-times-latitude`   | `32.8140`         | Latitude                                                                             |
+| `@prayer-times-longitude`  | `-96.9489`        | Longitude                                                                            |
+| `@prayer-times-timezone`   | `America/Chicago` | IANA timezone for local wall-clock + DST                                            |
+| `@prayer-times-utc-offset` | `auto`            | UTC offset in hours (`auto` uses timezone)                                          |
+| `@prayer-times-method`     | `ISNA`            | Method: ISNA, MWL, Egypt, Makkah, Karachi, Tehran, Jafari, France, Russia, Singapore |
+| `@prayer-times-school`     | `standard`        | `standard` or `hanafi`                                                              |
+| `@prayer-times-format`     | `12H`             | `12H`, `12h`, or `24h`                                                              |
+| `@prayer-times-interval`   | `1`               | Refresh interval in minutes                                                         |
+| `@prayer-times-icon`       | `🕌 `             | Icon placeholder value                                                              |
+| `@prayer-times-color`      | `#89b4fa`         | Static color used by `#{prayer_times_color}`                                        |
+| `@prayer-times-popup-key`  | `m`               | Key used with tmux prefix to open prayer-times popup                                |
 
 Example config:
 
@@ -92,6 +99,7 @@ set -g @prayer-times-school 'standard'
 set -g @prayer-times-format '12H'
 set -g @prayer-times-interval '1'
 set -g @prayer-times-icon '🕌'
+set -g @prayer-times-popup-key 'm'
 ```
 
 ## Catppuccin module sample
@@ -112,10 +120,9 @@ source-file -F '#{TMUX_PLUGIN_MANAGER_PATH}/tmux/utils/status_module.conf'
 ## Manual script checks
 
 ```bash
-bash -n scripts/helpers.sh scripts/prayer_times.sh
+bash -n muslim-prayers.tmux scripts/helpers.sh scripts/prayer_times.sh scripts/popup_times.sh
 lua scripts/prayer_calc.lua 32.8140 -96.9489 auto ISNA standard 12H status America/Chicago
 ```
-
 
 ## License
 
