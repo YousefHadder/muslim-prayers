@@ -13,7 +13,7 @@ Offline-first TPM plugin that shows Islamic prayer status in tmux status bar.
 
 ## Features
 
-- Fully offline prayer-time calculation (ported from `muslim.nvim` logic)
+- Fully offline prayer-time calculation (ported from [muslim.nvim](https://github.com/tajirhas9/muslim.nvim) logic)
 - Configurable location/method/school/time format via tmux options
 - DST-safe mode with timezone-aware auto UTC offset
 - Next-prayer-focused status text (for example: `Fajr at: 05:49 AM`)
