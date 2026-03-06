@@ -120,9 +120,16 @@ if [[ "$LAST_UPDATE_TIME" =~ ^[0-9]+$ ]] && [ "$CURRENT_TIME" -lt "$LAST_UPDATE_
 fi
 
 USE_CACHE="false"
+NEXT_REFRESH_VALID="false"
+if [[ "$NEXT_REFRESH_TIME" =~ ^[0-9]+$ ]] && [ "$NEXT_REFRESH_TIME" -gt 0 ]; then
+  NEXT_REFRESH_VALID="true"
+fi
+
 if [ -n "$CACHED_STATUS" ] && [ "$CLOCK_ROLLED_BACK" = "false" ]; then
-  if [[ "$NEXT_REFRESH_TIME" =~ ^[0-9]+$ ]] && [ "$NEXT_REFRESH_TIME" -gt "$CURRENT_TIME" ]; then
-    USE_CACHE="true"
+  if [ "$NEXT_REFRESH_VALID" = "true" ]; then
+    if [ "$NEXT_REFRESH_TIME" -gt "$CURRENT_TIME" ]; then
+      USE_CACHE="true"
+    fi
   elif [[ "$LAST_UPDATE_TIME" =~ ^[0-9]+$ ]] && [ "$((CURRENT_TIME - LAST_UPDATE_TIME))" -lt "$INTERVAL_SECONDS" ]; then
     USE_CACHE="true"
   fi
@@ -167,7 +174,7 @@ if ! [[ "$NEXT_REFRESH_TIME" =~ ^[0-9]+$ ]]; then
   NEXT_REFRESH_TIME="$((CURRENT_TIME + INTERVAL_SECONDS))"
 fi
 if [ "$NEXT_REFRESH_TIME" -le "$CURRENT_TIME" ]; then
-  NEXT_REFRESH_TIME="$((CURRENT_TIME + 60))"
+  NEXT_REFRESH_TIME="$((CURRENT_TIME + INTERVAL_SECONDS))"
 fi
 
 set_tmux_option "$CACHE_VALUE_OPTION" "$STATUS_TEXT"
