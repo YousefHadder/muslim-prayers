@@ -275,7 +275,16 @@ local function set_utc_time_for_date(date)
     min = 0,
     sec = 0,
   })
-  Calculator.utc_time = (local_midnight + (Calculator.config.utc_offset * 3600)) * 1000
+  -- Derive midnight UTC for the given local date directly from the epoch
+  -- instead of using Calculator.config.utc_offset, which may not match the
+  -- offset at midnight on DST transition days.
+  local utc = os.date("!*t", local_midnight)
+  local secs_into_utc_day = utc.hour * 3600 + utc.min * 60 + utc.sec
+  if utc.day == date.day and utc.month == date.month then
+    Calculator.utc_time = (local_midnight - secs_into_utc_day) * 1000
+  else
+    Calculator.utc_time = (local_midnight + (86400 - secs_into_utc_day)) * 1000
+  end
 end
 
 local function convert_times(times)

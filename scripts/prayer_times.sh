@@ -34,6 +34,7 @@ CACHE_VALUE_OPTION="@prayer-times-previous-value"
 CACHE_COLOR_OPTION="@prayer-times-previous-color"
 CACHE_TIME_OPTION="@prayer-times-previous-update-time"
 CACHE_NEXT_REFRESH_OPTION="@prayer-times-next-refresh-time"
+CACHE_TZ_OFFSET_OPTION="@prayer-times-previous-tz-offset"
 
 if ! [[ "$INTERVAL_MINUTES" =~ ^[0-9]+$ ]]; then
   INTERVAL_MINUTES="1"
@@ -76,6 +77,7 @@ emit_fallback() {
   set_tmux_option "$CACHE_COLOR_OPTION" "$color"
   set_tmux_option "$CACHE_TIME_OPTION" "$now"
   set_tmux_option "$CACHE_NEXT_REFRESH_OPTION" "$((now + INTERVAL_SECONDS))"
+  set_tmux_option "$CACHE_TZ_OFFSET_OPTION" "$CURRENT_TZ_OFFSET"
 
   if [ "$MODE" = "color" ]; then
     echo "$color"
@@ -115,6 +117,14 @@ CACHED_COLOR="$(get_tmux_option "$CACHE_COLOR_OPTION" "$PRAYER_COLOR")"
 INTERVAL_SECONDS="$((INTERVAL_MINUTES * 60))"
 CLOCK_ROLLED_BACK="false"
 
+# Detect DST / timezone offset changes to invalidate stale formatted strings.
+if [ -n "$TIMEZONE" ]; then
+  CURRENT_TZ_OFFSET="$(TZ="$TIMEZONE" date +%z)"
+else
+  CURRENT_TZ_OFFSET="$(date +%z)"
+fi
+CACHED_TZ_OFFSET="$(get_tmux_option "$CACHE_TZ_OFFSET_OPTION" "")"
+
 if [[ "$LAST_UPDATE_TIME" =~ ^[0-9]+$ ]] && [ "$CURRENT_TIME" -lt "$LAST_UPDATE_TIME" ]; then
   CLOCK_ROLLED_BACK="true"
 fi
@@ -125,7 +135,7 @@ if [[ "$NEXT_REFRESH_TIME" =~ ^[0-9]+$ ]] && [ "$NEXT_REFRESH_TIME" -gt 0 ]; the
   NEXT_REFRESH_VALID="true"
 fi
 
-if [ -n "$CACHED_STATUS" ] && [ "$CLOCK_ROLLED_BACK" = "false" ]; then
+if [ -n "$CACHED_STATUS" ] && [ "$CLOCK_ROLLED_BACK" = "false" ] && [ "$CURRENT_TZ_OFFSET" = "$CACHED_TZ_OFFSET" ]; then
   if [ "$NEXT_REFRESH_VALID" = "true" ]; then
     if [ "$NEXT_REFRESH_TIME" -gt "$CURRENT_TIME" ]; then
       USE_CACHE="true"
@@ -181,6 +191,7 @@ set_tmux_option "$CACHE_VALUE_OPTION" "$STATUS_TEXT"
 set_tmux_option "$CACHE_COLOR_OPTION" "$COLOR_TEXT"
 set_tmux_option "$CACHE_TIME_OPTION" "$CURRENT_TIME"
 set_tmux_option "$CACHE_NEXT_REFRESH_OPTION" "$NEXT_REFRESH_TIME"
+set_tmux_option "$CACHE_TZ_OFFSET_OPTION" "$CURRENT_TZ_OFFSET"
 
 if [ "$MODE" = "color" ]; then
   echo "$COLOR_TEXT"
